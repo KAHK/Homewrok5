@@ -49,6 +49,17 @@ public class Bank {
         return null;
     }
 
+    private List<Account> findAccountsByCustomerID(Integer customerID) {
+        List<Account> customerList = new ArrayList<>();
+        for (Account acc : accList) {
+            if (acc.getCustomer().getCustomerID().equals(customerID))
+                customerList.add(acc);
+        }
+        return customerList;
+    }
+
+
+
     public void transfer(int fromAccID, int toAccID, Double amount) {
 
         Account FromAcc = findAccountByID(fromAccID);
@@ -69,18 +80,36 @@ public class Bank {
             return;
         }
 
-        if(new BigDecimal(amount).compareTo(FromAcc.getBalance()) == 1)
-        {
-            JOptionPane.showMessageDialog(null,"Not enough money to finalize the transfer.");
-            return;
-        }
         if(amount < 0)
         {
             JOptionPane.showMessageDialog(null, "You can not transfer negative values.");
             return;
         }
-        FromAcc.charge(amount);
-        ToAcc.deposit(amount);
+
+        if(new BigDecimal(amount).compareTo(FromAcc.getBalance()) == 1)
+        {
+            for(Account acc : findAccountsByCustomerID(FromAcc.getCustomer().getCustomerID()))
+            {
+                if(new BigDecimal(amount).compareTo(acc.getBalance()) != 1)
+                {
+                    //tutaj przelewamy z innego konta i informujemy, że poszło z innego
+                    acc.charge(amount);
+                    ToAcc.deposit(amount);
+                    JOptionPane.showMessageDialog(null, "Not enough money on chosen account, " +
+                            "money transferred from: "+acc.getAccountID().toString());
+                    return;
+                }
+            }
+            JOptionPane.showMessageDialog(null, "Not enough money on any account.");
+            return;
+        }
+        else
+        {
+            FromAcc.charge(amount);
+            ToAcc.deposit(amount);
+        }
+
+
     }
 
 
