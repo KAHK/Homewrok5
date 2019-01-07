@@ -92,7 +92,6 @@ public class Bank {
             {
                 if(new BigDecimal(amount).compareTo(acc.getBalance()) != 1)
                 {
-                    //tutaj przelewamy z innego konta i informujemy, że poszło z innego
                     acc.charge(amount);
                     ToAcc.deposit(amount);
                     JOptionPane.showMessageDialog(null, "Not enough money on chosen account, " +
